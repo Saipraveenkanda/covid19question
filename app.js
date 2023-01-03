@@ -1,6 +1,7 @@
 const express = require("express");
 const { open } = require("sqlite");
 const app = express();
+app.use(express.json());
 const path = require("path");
 const sqlite3 = require("sqlite3");
 const dbPath = path.join(__dirname, "covid19India.db");
@@ -57,17 +58,26 @@ app.get("/states/:stateId", async (request, response) => {
 
 //ADD A DISTRICT API
 app.post("/districts/", async (request, response) => {
+  const districtDetails = request.body;
+  const {
+    districtName,
+    stateId,
+    cases,
+    cured,
+    active,
+    deaths,
+  } = districtDetails;
   const addDistrictQuery = `
     INSERT INTO
       district (district_name, state_id, cases, cured, active, deaths)
     VALUES
       (
-        "Bagalkot",
-        3,
-        2323,
-        2000,
-        315,
-        8
+        '${districtName}',
+        ${stateId},
+        ${cases},
+        ${cured},
+        ${active},
+        ${deaths}
       );`;
 
   const dbResponse = await db.run(addDistrictQuery);
@@ -114,17 +124,27 @@ app.delete("/districts/:districtId/", async (request, response) => {
 //Updates the details of a specific district based on the district ID API
 app.put("/districts/:districtId/", async (request, response) => {
   const { districtId } = request.params;
+  const districtDetails = request.body;
+  const {
+    districtName,
+    stateId,
+    cases,
+    cured,
+    active,
+    deaths,
+  } = districtDetails;
   const updateDistrictQuery = `
   UPDATE
     district
   SET
-    district_name= "Nadia",
-    state_id= 3,
-    cases= 9628,
-    cured= 6524,
-    active= 3000,
-    deaths= 104
-  WHERE district_id = ${districtId}`;
+    district_name= '${districtName}',
+    state_id= ${stateId},
+    cases= ${cases},
+    cured= ${cured},
+    active= ${active},
+    deaths= ${deaths}
+  WHERE 
+    district_id = ${districtId};`;
 
   await db.run(updateDistrictQuery);
   //console.log("District Details Updated");
